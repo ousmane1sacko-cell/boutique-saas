@@ -1,0 +1,13 @@
+{
+  "name": "boutique-saas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gestion de boutique en ligne : ventes, stock, clients et crédit",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
