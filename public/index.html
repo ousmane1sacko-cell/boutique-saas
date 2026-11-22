@@ -174,7 +174,7 @@
     <div style="height:10px"></div>
     <button class="btn ghost full" onclick="resetDay()">Nouvelle journée</button>
     <div style="height:10px"></div>
-    <button class="btn ghost full" onclick="logout()">Se déconnecter</button>
+    <button class="btn ghost full" onclick="exportBackup()">Exporter une sauvegarde</button><div style="height:10px"></div><button class="btn ghost full" onclick="document.getElementById('restoreFile').click()">Restaurer une sauvegarde</button><input id="restoreFile" type="file" accept="application/json" style="display:none" onchange="importBackup(this)"><div style="height:10px"></div><button class="btn ghost full" onclick="logout()">Se déconnecter</button>
     <div class="section-title" style="margin-top:22px">Dernières ventes</div>
     <div class="card" id="repList"></div>
   </section>
@@ -644,6 +644,33 @@ function toast(msg){
   el.textContent = msg; el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2300);
+}
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "boutique-" + todayKey() + ".json";
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 3000);
+  toast("Sauvegarde téléchargée");
+}
+function importBackup(input){
+  const f = input.files && input.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = function(){
+    try{
+      const d = JSON.parse(r.result);
+      if(!d || !Array.isArray(d.products)) throw new Error("format");
+      state = d;
+      if(!state.clients) state.clients = [];
+      if(!state.payments) state.payments = [];
+      if(!state.sales) state.sales = [];
+      save(); render(); toast("Sauvegarde restaurée");
+    }catch(e){ toast("Fichier invalide"); }
+  };
+  r.readAsText(f);
+  input.value = "";
 }
 setInterval(function(){ if(state && state.day!==todayKey()){ state.day = todayKey(); save(); render(); } }, 60000);
 boot();
